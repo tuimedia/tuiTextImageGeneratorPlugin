@@ -1,0 +1,43 @@
+#Put this in your app.yml. You can have multiple images under textimage.
+
+textimage:
+  example1:
+    width:             100
+    min_height:        500
+    font:              agendaspecial.ttf
+    size:              14
+    use_colour:        false
+    background:        tool_title_email_builder.gif
+    background_folder: images
+    background_colour: false
+    bg_offset_x:       0
+    bg_offset_y:       0
+    offset_x:          20
+    offset_y:          10
+    h_centered:        false
+    v_centered:        false
+    transparency:      '255,255,255'
+    colour:            '123,233,111'
+    margin_x:          0
+    align:             left
+    leading:           0
+  example2:
+    width:             100
+    min_height:        500
+    font:              agendaspecial.ttf
+    size:              14
+    use_colour:        false
+    background:        tool_title_email_builder.gif
+    background_folder: images
+    background_colour: false
+    bg_offset_x:       0
+    bg_offset_y:       0
+    offset_x:          20
+    offset_y:          10
+    h_centered:        false
+    v_centered:        false
+    transparency:      '255,255,255'
+    colour:            '123,233,111'
+    margin_x:          0
+    align:             left
+    leading:           0
