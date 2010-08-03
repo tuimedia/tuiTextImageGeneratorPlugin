@@ -1,3 +1,0 @@
-generate_text_image:
-  url:   /image/:image_name
-  param: { module: generateTextImage, action: index }
