@@ -55,7 +55,11 @@ class textImageGenerator {
 
     list($red,$green,$blue) = explode(',',$colour);
 
-    $fontpath = sfConfig::get('sf_web_dir').'/fonts/'.$options['font'];
+    $fontpath = sfConfig::get('sf_data_dir').'/fonts/'.$options['font'];
+
+    if (!file_exists($fontpath)) {
+      $fontpath = sfConfig::get('sf_plugins_dir').'/tuiTextImageGeneratorPlugin/data/fonts/'.$options['font'];
+    }
 
     if ($options['width']) {
       // Make text to fit width - offset_x
