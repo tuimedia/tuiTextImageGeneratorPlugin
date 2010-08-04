@@ -18,15 +18,13 @@ class generateTextImageActions extends sfActions
     {
       $response = $this->getResponse();
       $response->setContentType('image/gif');
-      $response->setContent(textImageGenerator::generateTextImage($e->getMessage()));
-      return sfView::NONE;
+      // $response->setContent();
+      return $this->renderText(textImageGenerator::generateTextImage($e->getMessage()));
     }
     
     $response = $this->getResponse();
     $response->setContentType('image/gif');
-    $response->setContent($image);
-
-    return sfView::NONE;
+    return $this->renderText($image);
 
   }
 }

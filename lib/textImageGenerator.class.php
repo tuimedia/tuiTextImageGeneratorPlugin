@@ -23,7 +23,7 @@ class textImageGenerator {
       'min_height'         => false,
       'font'               => 'agendaspecial.ttf',
       'size'               => '11',
-      'background_image'   => '',
+      'background_image'   => false,
       'background_colour'  => '255,255,255',
       'bg_offset_x'        => 0,
       'bg_offset_y'        => 0,
@@ -47,8 +47,8 @@ class textImageGenerator {
     
     // Handle colours & transparency
     $colour              = self::splitColour($options['colour']);
-    $transparency_colour = self::splitColour($options['transparency']);
-    $background_colour   = self::splitColour($options['background_colour']);
+    $transparency_colour = $options['transparency'] ? self::splitColour($options['transparency']) : false;
+    $background_colour   = $options['background_colour'] ? self::splitColour($options['background_colour']) : false;
 
     $fontpath = textImageGenerator::findFontFile($options['font']);
     
@@ -177,7 +177,11 @@ class textImageGenerator {
 
 
     // Save image
-    $output = imagegif($image);
+    ob_start();
+    imagegif($image);
+    $output = ob_get_contents();
+    ob_end_clean();
+
     imagedestroy($image);
     
     return $output;
@@ -305,13 +309,13 @@ class textImageGenerator {
     
     foreach($search_paths as $path) 
     {
-      if (is_file($path.$font))
+      if (is_file($path.$image))
       {
-        return $path.$font;
+        return $path.$image;
       }
     }
     
-    throw new sfException('Unable to find font');
+    throw new sfException('Unable to find background image');
   }
   
   
