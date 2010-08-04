@@ -163,7 +163,7 @@ class textImageGenerator {
       if ($options['align'] == 'right') {
         $line_x = $minimum_offset_x + $longest_line_baseline_x + ($text_width - $line_width);
       } else {
-        $line_x = $options['offset_x'] + ($options['margin_x'] / 2);
+        $line_x = $options['offset_x'] + $options['margin_x'];
       }
       // Figure out the vertical offset from the line height and line number
       $line_y = $options['offset_y'] + ($max_line_height * $line_num - ($max_line_height - $baseline_offset)) + ($options['leading'] * ($line_num - 1));
