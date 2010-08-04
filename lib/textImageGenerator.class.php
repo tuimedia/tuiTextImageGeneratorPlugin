@@ -10,8 +10,6 @@
  *
  * CAVEATS/KNOWN ISSUES:
  * - h_centered doesn't center each line of text separately, only the "text box" of all text. To get centered text, you should set the align option to "center" - although this isn't implemented yet.
- * - use_colour is ugly, bad code that uses globals, and relies on the getColours function.
- * - the "colour" and "transparency" options take a decimal RGB triplet as a string: eg, "255,255,255". It would be trivial to add support for hex triplets too (#FFFFFF)
  * - the "size" option is in points, not pixels, although GD doesn't seem to specify a DPI for the image - I assume that it's 72 DPI or something. All other measurements are in pixels, just to confuse you.
  *
  */
@@ -25,10 +23,8 @@ class textImageGenerator {
       'min_height'         => false,
       'font'               => 'agendaspecial.ttf',
       'size'               => '11',
-      'use_colour'         => false,
-      'background'         => '',
-      'background_folder'  => '',
-      'background_colour'  => false,
+      'background_image'   => '',
+      'background_colour'  => '255,255,255',
       'bg_offset_x'        => 0,
       'bg_offset_y'        => 0,
       'offset_x'           => 0,
@@ -36,7 +32,7 @@ class textImageGenerator {
       'h_centered'         => false,
       'v_centered'         => false,
       'transparency'       => '255,255,255',
-      'colour'             => false,
+      'colour'             => '0,0,0',
       'margin_x'           => 0,
       'align'              => 'left',
       'leading'            => 0
@@ -46,48 +42,47 @@ class textImageGenerator {
     // Convert ~ to new-lines
     $text = str_replace('~',PHP_EOL,$text);
 
+    // Merge options with defaults
     $options = array_merge($default_options, $options);
+    
+    // Handle colours & transparency
+    $colour              = self::splitColour($options['colour']);
+    $transparency_colour = self::splitColour($options['transparency']);
+    $background_colour   = self::splitColour($options['background_colour']);
 
-    // Specific colour override?
-    if ($options['colour']) {
-      $colour = $options['colour'];
-    }
+    $fontpath = textImageGenerator::findFontFile($options['font']);
+    
 
-    list($red,$green,$blue) = explode(',',$colour);
-
-    $fontpath = sfConfig::get('sf_data_dir').'/fonts/'.$options['font'];
-
-    if (!file_exists($fontpath)) {
-      $fontpath = sfConfig::get('sf_plugins_dir').'/tuiTextImageGeneratorPlugin/data/fonts/'.$options['font'];
-    }
-
+    // Wrap the text to fit the image width (including the x-offset and margin), if specified.
+    // If the image width isn't set, it gets set to the text width later.
     if ($options['width']) {
-      // Make text to fit width - offset_x
       $text_lines = self::mb_wordwrap($text, $fontpath, $options['size'], $options['width'] - $options['offset_x'] - ($options['margin_x'] * 2));
       $text_lines = array_map('trim', $text_lines);
-      $text = join("\n",$text_lines);
+      $text       = join("\n",$text_lines);
     } else {
       $text_lines = array(trim($text));
     }
 
     // Get height, width of the text itself
     list($blx,$bly, $brx,$bry, $trx,$try, $tlx,$tly) = imagettfbbox($options['size'],0,$fontpath,$text);
-    $leftmost = ($blx < $tlx) ? $blx : $tlx;
-    $rightmost = ($brx > $trx) ? $brx : $trx;
-    $topmost = ($tly < $try) ? $tly : $try;
+    $leftmost   = ($blx < $tlx) ? $blx : $tlx;
+    $rightmost  = ($brx > $trx) ? $brx : $trx;
+    $topmost    = ($tly < $try) ? $tly : $try;
     $bottommost = ($bly > $bry) ? $bly : $bry;
 
 
     // Figure out the baseline height and the maximum line height
-    $bbox_data = imagettfbbox($options['size'],0,$fontpath,'bF');
+    $bbox_data       = imagettfbbox($options['size'],0,$fontpath,'bF');
     $baseline_offset = $bbox_data[1] - $bbox_data[7];
 
-    $bbox_data = imagettfbbox($options['size'],0,$fontpath,'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
+    $bbox_data       = imagettfbbox($options['size'],0,$fontpath,'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
     $max_line_height = $bbox_data[1] - $bbox_data[7];
 
-    $text_width = $rightmost - $leftmost;
+    $text_width  = $rightmost - $leftmost;
     $text_height = ($max_line_height * count($text_lines)) + ($options['leading'] * (count($text_lines) - 1));
 
+    
+    // If the image width isn't fixed in the options, set it now to the width of the text
     if (!$options['width']) {
       $options['width'] = $text_width;
     }
@@ -95,8 +90,8 @@ class textImageGenerator {
 
     // Create image
     $image_height = $options['min_height'] && (($text_height + $options['offset_y']) < $options['min_height']) ? $options['min_height'] : $text_height + $options['offset_y'];
-    if ($options['background']) {
-      $bg_path = sfConfig::get('sf_web_dir').'/'.$options['background_folder'].'/'.$options['background'];
+    if ($options['background_image']) {
+      $bg_path = self::findBackgroundImage($options['background_image']);
       $bg_info = getimagesize($bg_path);
       if (($bg_info[1] + $options['bg_offset_y']) > $image_height) {
         $image_height = $bg_info[1] + $options['bg_offset_y'];
@@ -106,22 +101,19 @@ class textImageGenerator {
     $image = imagecreatetruecolor($options['width'],$image_height);
 
     // Generate colour, transparency, background
-    list($tr,$tg,$tb) = explode(',',$options['transparency']);
-
-    $transparency = imagecolorallocate($image, $tr,$tg,$tb);
-    $image_colour = imagecolorallocate($image, $red, $green, $blue);
+    $transparency = imagecolorallocate($image, $transparency_colour['red'], $transparency_colour['green'], $transparency_colour['blue']);
+    $image_colour = imagecolorallocate($image, $colour['red'], $colour['green'], $colour['blue']);
 
     imagefilledrectangle($image, 0,0, $options['width'], $image_height, $transparency);
     imagecolortransparent($image, $transparency);
 
     if ($options['background_colour']) {
-      list($br, $bg, $bb) = explode(',',$options['background_colour']);
-      $bg_colour = imagecolorallocate($image, $br, $bg, $bb);
+      $bg_colour = imagecolorallocate($image, $background_colour['red'], $background_colour['green'], $background_colour['blue']);
       imagefilledrectangle($image, 0,0, $options['width'], $image_height, $bg_colour);
     }
 
     // Insert background if necessary
-    if ($options['background']) {
+    if ($options['background_image']) {
       switch($bg_info[2]) {
         case IMAGETYPE_GIF:
           $bg = imagecreatefromgif($bg_path);
@@ -151,20 +143,21 @@ class textImageGenerator {
 
 
     $longest_line_baseline_x = $options['offset_x'] + $options['margin_x'];
-    $first_line_baseline_y = $options['offset_y'] + $baseline_offset;
+    $first_line_baseline_y   = $options['offset_y'] + $baseline_offset;
 
     $line_num = 1;
     $minimum_offset_x = $options['width'] - $text_width;
     // Now, render each line separately
     foreach ($text_lines as $line) {
       list($blx,$bly, $brx,$bry, $trx,$try, $tlx,$tly) = imagettfbbox($options['size'],0,$fontpath,$line);
-      $leftmost = ($blx < $tlx) ? $blx : $tlx;
-      $rightmost = ($brx > $trx) ? $brx : $trx;
-      $topmost = ($tly < $try) ? $tly : $try;
+      $leftmost   = ($blx < $tlx) ? $blx : $tlx;
+      $rightmost  = ($brx > $trx) ? $brx : $trx;
+      $topmost    = ($tly < $try) ? $tly : $try;
       $bottommost = ($bly > $bry) ? $bly : $bry;
 
+
       // Figure out its width to find the individual horizontal offset to apply
-      $line_width = $rightmost - $leftmost;
+      $line_width  = $rightmost - $leftmost;
       $line_height = $bottommost - $topmost;
 
       if ($options['align'] == 'right') {
@@ -183,17 +176,11 @@ class textImageGenerator {
 
 
 
-
-
-
     // Save image
-    $key = sprintf('%08X.gif',crc32($text.$colour.serialize($options)));
-
-    return imagegif($image);
+    $output = imagegif($image);
     imagedestroy($image);
-    // Return URL
-    return 'images/'.$key;
-
+    
+    return $output;
   }
 
 
@@ -269,4 +256,92 @@ class textImageGenerator {
     else return FALSE;
   }
 
+
+  /* Find the font file: 
+   * First, check if the given path already refers to an existing file
+   * Next check the project's data/fonts directory
+   * Finally, check the plugin's data/fonts directory
+   * If still not found, throw an exception
+   */
+  private static function findFontFile($font)
+  {
+
+    if (is_file($font))
+    {
+      return $font;
+    }
+
+    // Search for the file
+    $search_paths = array(
+      sfConfig::get('sf_data_dir').'/fonts/', 
+      sfConfig::get('sf_plugins_dir').'/tuiTextImageGeneratorPlugin/data/fonts/',
+    );
+    
+    foreach($search_paths as $path) 
+    {
+      if (is_file($path.$font))
+      {
+        return $path.$font;
+      }
+    }
+    
+    throw new sfException('Unable to find font');
+  }
+
+
+  private static function findBackgroundImage($image)
+  {
+
+    if (is_file($image))
+    {
+      return $image;
+    }
+
+    // Search for the file
+    $search_paths = array(
+      sfConfig::get('sf_data_dir').'/images/', 
+      sfConfig::get('sf_plugins_dir').'/tuiTextImageGeneratorPlugin/data/images/',
+    );
+    
+    foreach($search_paths as $path) 
+    {
+      if (is_file($path.$font))
+      {
+        return $path.$font;
+      }
+    }
+    
+    throw new sfException('Unable to find font');
+  }
+  
+  
+  // Takes either r,g,b as numbers 0-255, or an HTML hex-triplet (#FFFFFF)
+  // And returns the three components as 0-255 integers
+  private static function splitColour($colour_string)
+  {
+    if (preg_match('/^(\d{1,3}),(\d{1,3}),(\d{1,3})$/', $colour_string, $matches))
+    {
+      return array(
+        'red'   => $matches[1],
+        'green' => $matches[2],
+        'blue'  => $matches[3]
+      );
+    }
+    
+    if (preg_match('/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i', $colour_string, $matches))
+    {
+      unset($matches[0]);
+      $matches = array_map('hexdec', $matches);
+
+      return array(
+        'red'   => $matches[1],
+        'green' => $matches[2],
+        'blue'  => $matches[3]
+      );
+    }    
+
+    // Neither pattern match. Panic and freak out.
+    throw new sfException('Unrecognised colour definition');
+  }
+  
 }

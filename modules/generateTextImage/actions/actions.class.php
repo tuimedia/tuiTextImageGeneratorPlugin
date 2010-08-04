@@ -9,28 +9,19 @@ class generateTextImageActions extends sfActions
 
     $this->forward404Unless($settings);
 
-    $image =  textImageGenerator::generateTextImage(
-      $request->getParameter('text'),
-      array(
-        'width' => $settings['width'],
-        'min_height' => $settings['min_height'],
-        'font' => $settings['font'],
-        'size' => $settings['size'],
-        'background' => $settings['background'],
-        'background_folder' => $settings['background_folder'],
-        'background_colour' => $settings['background_colour'],
-        'h_centered' => $settings['h_centered'],
-        'v_centered' => $settings['v_centered'],
-        'transparency' => $settings['transparency'],
-        'colour' => $settings['colour'],
-        'margin_x' => $settings['margin_x'],
-        'align' => $settings['align'],
-        'offset_x' => $settings['offset_x'],
-        'offset_y' => $settings['offset_y'],
-        'leading' => $settings['leading']
-        )
+    try{
+      $image =  textImageGenerator::generateTextImage(
+        $request->getParameter('text'),
+        $settings
       );
-
+    } catch (Exception $e)
+    {
+      $response = $this->getResponse();
+      $response->setContentType('image/gif');
+      $response->setContent(textImageGenerator::generateTextImage($e->getMessage()));
+      return sfView::NONE;
+    }
+    
     $response = $this->getResponse();
     $response->setContentType('image/gif');
     $response->setContent($image);
