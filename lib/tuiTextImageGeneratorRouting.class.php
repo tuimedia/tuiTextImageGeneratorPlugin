@@ -27,8 +27,8 @@ class tuiTextImageGeneratorRouting
   {
     $r = $event->getSubject();
 
-    // preprend our routes
-    $r->prependRoute('tui_text_image_generator_image', new sfRoute('/image/:image_name', array('module' => 'generateTextImage', 'action' => 'index')));
+    // prepend our routes
+    $r->prependRoute('text_image', new sfRoute('/image/:image_name', array('module' => 'generateTextImage', 'action' => 'index')));
    }
 
 }
