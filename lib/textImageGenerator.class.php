@@ -64,7 +64,7 @@ class textImageGenerator {
     }
 
     // Get height, width of the text itself
-    list($blx,$bly, $brx,$bry, $trx,$try, $tlx,$tly) = imagettfbbox($options['size'],0,$fontpath,$text);
+    list($blx,$bly, $brx,$bry, $trx,$try, $tlx,$tly) = imageftbbox($options['size'],0,$fontpath,$text);
     $leftmost   = ($blx < $tlx) ? $blx : $tlx;
     $rightmost  = ($brx > $trx) ? $brx : $trx;
     $topmost    = ($tly < $try) ? $tly : $try;
@@ -72,10 +72,10 @@ class textImageGenerator {
 
 
     // Figure out the baseline height and the maximum line height
-    $bbox_data       = imagettfbbox($options['size'],0,$fontpath,'bF');
+    $bbox_data       = imageftbbox($options['size'],0,$fontpath,'bF');
     $baseline_offset = $bbox_data[1] - $bbox_data[7];
 
-    $bbox_data       = imagettfbbox($options['size'],0,$fontpath,'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
+    $bbox_data       = imageftbbox($options['size'],0,$fontpath,'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
     $max_line_height = $bbox_data[1] - $bbox_data[7];
 
     $text_width  = $rightmost - $leftmost;
@@ -102,7 +102,7 @@ class textImageGenerator {
 
     // Generate colour, transparency, background
     $transparency = imagecolorallocate($image, $transparency_colour['red'], $transparency_colour['green'], $transparency_colour['blue']);
-    $image_colour = imagecolorallocate($image, $colour['red'], $colour['green'], $colour['blue']);
+    $image_colour = imagecolorallocatealpha($image, $colour['red'], $colour['green'], $colour['blue'],0);
 
     imagefilledrectangle($image, 0,0, $options['width'], $image_height, $transparency);
     imagecolortransparent($image, $transparency);
@@ -149,7 +149,7 @@ class textImageGenerator {
     $minimum_offset_x = $options['width'] - $text_width;
     // Now, render each line separately
     foreach ($text_lines as $line) {
-      list($blx,$bly, $brx,$bry, $trx,$try, $tlx,$tly) = imagettfbbox($options['size'],0,$fontpath,$line);
+      list($blx,$bly, $brx,$bry, $trx,$try, $tlx,$tly) = imageftbbox($options['size'],0,$fontpath,$line);
       $leftmost   = ($blx < $tlx) ? $blx : $tlx;
       $rightmost  = ($brx > $trx) ? $brx : $trx;
       $topmost    = ($tly < $try) ? $tly : $try;
@@ -169,7 +169,7 @@ class textImageGenerator {
       $line_y = $options['offset_y'] + ($max_line_height * $line_num - ($max_line_height - $baseline_offset)) + ($options['leading'] * ($line_num - 1));
 
       // Insert the line
-      imagettftext($image, $options['size'], 0, $line_x, $line_y, $image_colour, $fontpath, $line);
+      imagefttext($image, $options['size'], 0, $line_x, $line_y, $image_colour, $fontpath, $line);
 
       $line_num++;
     }
@@ -178,7 +178,7 @@ class textImageGenerator {
 
     // Save image
     ob_start();
-    imagegif($image);
+    imagepng($image);
     $output = ob_get_contents();
     ob_end_clean();
 
@@ -200,12 +200,12 @@ class textImageGenerator {
     $this_is_cr = FALSE; // Check if the character is new line code (ASCII=10)
     $result_lines = array(); // Array for storing the return result
 
-    while ($pointer < mb_strlen($txt)) {
-      $this_char = mb_substr($txt,$pointer,1);
+    while ($pointer < mb_strlen($txt, 'UTF-8')) {
+      $this_char = mb_substr($txt,$pointer,1,'UTF-8');
       if (ord($this_char[0])==10) $this_is_cr = TRUE; // Check if it is a new line
       // Check current line width
-      $tmp_line = mb_substr($txt, $this_line_start, $this_line_strlen);
-      $tmp_line_bbox = imagettfbbox($size,0,$font,$tmp_line);
+      $tmp_line = mb_substr($txt, $this_line_start, $this_line_strlen,'UTF-8');
+      $tmp_line_bbox = imageftbbox($size,0,$font,$tmp_line);
       $this_line_width = $tmp_line_bbox[2]-$tmp_line_bbox[0];
 
       // Prevent to cut off english word at the end of line
@@ -213,19 +213,19 @@ class textImageGenerator {
       if (self::is_alphanumeric($this_char, $single_byte_stack)) $single_byte_stack .= $this_char;
       // Check the width of single byte words
       if ($single_byte_stack != "") {
-        $tmp_line_bbox = imagettfbbox($size,0,$font,$single_byte_stack);
+        $tmp_line_bbox = imageftbbox($size,0,$font,$single_byte_stack);
         $sbs_line_width = $tmp_line_bbox[2]-$tmp_line_bbox[0];
       }
 
       if ($this_is_cr || $this_line_width > $width || $sbs_line_width >= $width) {
         // If last word is alphanumeric, put it to next line rather then cut it off
         if ($single_byte_stack != "" && self::is_alphanumeric($this_char, $single_byte_stack) && $sbs_line_width < $width) {
-          $stack_len = mb_strlen($single_byte_stack);
+          $stack_len = mb_strlen($single_byte_stack, 'UTF-8');
           $this_line_strlen = $this_line_strlen - $stack_len + 1;
           $pointer = $pointer - $stack_len + 1;
         }
         // Move the current line to result array and reset all counter
-        $result_lines[] = mb_substr($txt, $this_line_start, $this_line_strlen-1);
+        $result_lines[] = mb_substr($txt, $this_line_start, $this_line_strlen-1,'UTF-8');
         if ($this_is_cr) {
           $pointer++;
           $this_is_cr=FALSE;
@@ -243,7 +243,7 @@ class textImageGenerator {
       }
     }
     // Move remained word to result
-    $result_lines[] = mb_substr($txt, $this_line_start);
+    $result_lines[] = mb_substr($txt, $this_line_start, mb_strlen($txt,'UTF-8'),'UTF-8');
 
     return $result_lines;
   }
