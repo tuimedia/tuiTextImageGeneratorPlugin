@@ -9,6 +9,18 @@ class generateTextImageActions extends sfActions
 
     $this->forward404Unless($settings);
 
+    // Use the callback function/method instead, if set
+    if (isset($settings['callback']))
+    {
+      $mime_type = isset($settings['mime_type']) ? $settings['mime_type'] : 'image/gif';
+      $this->getResponse()->setContentType($mime_type);
+      
+      $parameters = isset($settings['callbackoptions']) ? $settings['callbackoptions'] : array();
+      
+      return $this->renderText( call_user_func($settings['callback'], $request->getParameter('text'), $parameters) );
+    }
+
+
     try{
       $image =  textImageGenerator::generateTextImage(
         $request->getParameter('text'),

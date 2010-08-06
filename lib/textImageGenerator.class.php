@@ -267,7 +267,7 @@ class textImageGenerator {
    * Finally, check the plugin's data/fonts directory
    * If still not found, throw an exception
    */
-  private static function findFontFile($font)
+  public static function findFontFile($font)
   {
 
     if (is_file($font))
@@ -293,7 +293,7 @@ class textImageGenerator {
   }
 
 
-  private static function findBackgroundImage($image)
+  public static function findBackgroundImage($image)
   {
 
     if (is_file($image))
