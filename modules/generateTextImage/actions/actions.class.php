@@ -17,7 +17,17 @@ class generateTextImageActions extends sfActions
       
       $parameters = isset($settings['callbackoptions']) ? $settings['callbackoptions'] : array();
       
-      return $this->renderText( call_user_func($settings['callback'], $request->getParameter('text'), $parameters) );
+      try
+      {
+        return $this->renderText( call_user_func($settings['callback'], $request->getParameter('text'), $parameters) );
+      } catch (Exception $e)
+      {
+        $response = $this->getResponse();
+        $response->setContentType('image/gif');
+        // $response->setContent();
+        return $this->renderText(textImageGenerator::generateTextImage($e->getMessage()));
+      }
+      
     }
 
 

@@ -6,10 +6,10 @@ class imagicktextimage
   public static function generate($text, $params = array())
   {
     $default_params = array(
-      'size'                => 48,
+      'size'                => 16,
       'align'               => 'left',
       'colour'              => 'black',
-      'font'                => 'Zapfino.ttf',
+      'font'                => 'agendaspecial.ttf',
       'format'              => 'gif',
       'offset_x'            => 0,
       'offset_y'            => 0,
