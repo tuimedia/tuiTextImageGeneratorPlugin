@@ -38,7 +38,9 @@ class generateTextImageActions extends sfActions
       
       try
       {
-        return $this->renderText( call_user_func($settings['callback'], $text, $parameters) );
+        return (isset($settings['pass_request_object']) && $settings['pass_request_object']) ? 
+          $this->renderText( call_user_func($settings['callback'], $text, $parameters, $request) ) :
+          $this->renderText( call_user_func($settings['callback'], $text, $parameters) );
       } catch (Exception $e)
       {
         $response = $this->getResponse();
