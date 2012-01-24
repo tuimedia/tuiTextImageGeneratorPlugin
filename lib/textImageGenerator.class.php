@@ -31,6 +31,7 @@ class textImageGenerator {
       'offset_y'           => 0,
       'h_centered'         => false,
       'v_centered'         => false,
+      'v_align'            => false,
       'transparency'       => '255,255,255',
       'colour'             => '0,0,0',
       'margin_x'           => 0,
@@ -140,7 +141,12 @@ class textImageGenerator {
       $options['offset_y'] = floor(($image_height / 2) - ($text_height / 2));
     }
 
-
+    if ($options['v_align'] == 'bottom') {
+      $options['offset_y'] = floor($image_height - $text_height);
+    }
+    if ($options['v_align'] == 'top') {
+      $options['offset_y'] = 0;
+    }
 
     $longest_line_baseline_x = $options['offset_x'] + $options['margin_x'];
     $first_line_baseline_y   = $options['offset_y'] + $baseline_offset;
