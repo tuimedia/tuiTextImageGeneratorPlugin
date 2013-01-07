@@ -61,28 +61,28 @@ If you remove a setting, the plugin will use "sensible" defaults. You do not the
 
 ### text
 
-**Possible values:** any UTF-8 string
+**Possible values:** any UTF-8 string  
 **Default value:** none
 
 The text passed should be a UTF-8 encoded string. For convenience, the ~ (tilde) character is replaced with a line-break. If you set a `width` on the image and the text doesn't fit on one line, it is word-wrapped automatically.
 
 ### align
 
-**Possible values**: left,right
+**Possible values**: left,right  
 **Default value**: left
 
 On multi-line text, aligns each line to the left or right of the text block.
 
 ### background_colour
 
-**Possible values:** RGB triplet in decimal or hex (e.g. 255,255,255, or #FFFFFF)
+**Possible values:** RGB triplet in decimal or hex (e.g. 255,255,255, or #FFFFFF)  
 **Default value:** 255,255,255 (white)
 
 Fills the image background. To make a transparent background, set the `transparency` setting to the same colour.
 
 ### background_image 
 
-**Possible values:** false, image filename
+**Possible values:** false, image filename  
 **Default value:** false
 
 If set, adds an image under the text. You can use `bg_offset_x` and `bg_offset_y` to position the background image. 
@@ -91,35 +91,35 @@ The plugin looks for images by default in the `/data/images/` directory of your 
 
 ### bg_offset_x, bg_offset_y 
 
-**Possible values:** integer
+**Possible values:** integer  
 **Default value:** 0
 
 If set, specifies the position in pixels of the top left of the background image, relative to the top left of the generated output image.
 
 ### colour
 
-**Possible values:** RGB triplet in decimal or hex (e.g. 255,255,255, or #FFFFFF)
+**Possible values:** RGB triplet in decimal or hex (e.g. 255,255,255, or #FFFFFF)  
 **Default value:** 0,0,0 (black)
 
 Sets the colour of the text.
 
 ### font 
 
-**Possible values:** full or relative path to a .ttf file
+**Possible values:** full or relative path to a .ttf file  
 **Default value:** agendaspecial.ttf
 
 The plugin will look for fonts by default in the `/data/fonts/` directory. If the font does not exist there, it will then look in the plugin's own `data/fonts` directory. You can also supply a full path or relative path to the font file, starting from the web directory. The plugin checks this first. We don't include a default font for licensing reasons.
 
 ### h_centered, v_centered 
 
-**Possible values:** true, false
+**Possible values:** true, false  
 **Default value:** false
 
 This centers the position of the text block horizontally and/or vertically within the generated image. It does NOT centre each line of text within the block. If no width is set for the image, then the `h_centered` setting has no effect (since the image will be as large as the text block). Similarly, if `min_height` setting isn't set, then the `v_centered` setting has no effect.
 
 ### leading
 
-**Possible values:** integer
+**Possible values:** integer  
 **Default value:** 0
 
 If set, adds a gap between each line of text. 
@@ -127,7 +127,7 @@ If set, adds a gap between each line of text.
 
 ### margin_x 
 
-**Possible values:** integer
+**Possible values:** integer  
 **Default value:** 0
 
 If set, adds horizontal spacing on either side of the text box.
@@ -135,14 +135,14 @@ If set, adds horizontal spacing on either side of the text box.
 
 ### min_height 
 
-**Possible values:** false, integer
+**Possible values:** false, integer  
 **Default value:** false
 
 Sets the minimum height of the generated image. The image is always rendered tall enough to contain the text, but you can set this to make the image bigger if necessary (useful for making sure the background image isn't cut off).
 
 ### offset_x, offset_y 
 
-**Possible values:** integer
+**Possible values:** integer  
 **Default value:** 0
 
 Sets the position of the top left of the text box within the generated image. Useful for positioning text on a background image (e.g., creating buttons)
@@ -150,7 +150,7 @@ Sets the position of the top left of the text box within the generated image. Us
 
 ### size 
 
-**Possible values:** integer
+**Possible values:** integer  
 **Default value:** 14
 
 The font-size in points.
@@ -158,7 +158,7 @@ The font-size in points.
 
 ### transparency 
 
-**Possible values:** RGB triplet in decimal or hex (e.g. 255,255,255, or #FFFFFF)
+**Possible values:** RGB triplet in decimal or hex (e.g. 255,255,255, or #FFFFFF)  
 **Default value:** 255,255,255 (white)
 
 Sets which colour to use as the transparency colour. By default it's white, the same as the background, so generated images have a transparent background.
@@ -166,7 +166,7 @@ Sets which colour to use as the transparency colour. By default it's white, the 
 
 ### width 
 
-**Possible values:** false, integer
+**Possible values:** false, integer  
 **Default value:** false
 
 Sets the width of the image, in pixels. If `width` is set to false (the default), then the image will be sized to fit the text box. If the width is shorter than the length of the longest line of text, the text is word-wrapped to fit.
