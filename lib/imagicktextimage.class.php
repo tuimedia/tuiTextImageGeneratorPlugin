@@ -19,6 +19,7 @@ class imagicktextimage
       'background_offset_y' => 0,
       'width'               => false,
       'height'              => false,
+      'text_decoration'     => 'none',
       'quality'             => 95,
     );
     $params = array_merge($default_params, $params);
@@ -35,6 +36,25 @@ class imagicktextimage
     $text_colour = new ImagickPixel();
     $text_colour->setColor($params['colour']);
     $draw->setFillColor($text_colour);
+
+    switch($params['text_decoration'])
+    {
+      case 'underline':
+        $draw->setTextDecoration(2);
+        break;
+      
+      case 'overline':
+        $draw->setTextDecoration(3);
+        break;
+      
+      case 'line-through':
+        $draw->setTextDecoration(4);
+        break;
+      
+      default:
+        $draw->setTextDecoration(1);
+        break;
+    }
 
     switch($params['align'])
     {

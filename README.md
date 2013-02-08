@@ -206,6 +206,8 @@ You can use the `callback`, `callbackoptions`, and `mime_type` settings to speci
         offset_x: 0  # left margin if left aligned or centered, or right margin if right-aligned 
         offset_y: 25 # vertical margin
         
+        text_decoration: none # or underline, or overline, or line-through
+        
         align: center # or left, or right
 ```
 
