@@ -83,6 +83,10 @@ class imagicktextimage
     /* Create the image */
     $width  = $params['width'] ? $params['width'] : $info['textWidth'];
     $height = $params['height'] ? $params['height'] : $info['textHeight'];
+    
+    // Nudge the image width slighly if it hasn't been passed as a parameter
+    if (!$params['width'])
+      $width += 5;
 
     $image->newImage($width, $height, $background_colour);
 
