@@ -17,8 +17,8 @@ class generateTextImageActions extends sfActions
       case 'image/gif':
         $filename .= '.gif';
         break;
-
       case 'image/png':
+
         $filename .= '.png';
         break;
       
@@ -44,7 +44,7 @@ class generateTextImageActions extends sfActions
       } catch (Exception $e)
       {
         $response = $this->getResponse();
-        $response->setContentType('image/gif');
+        $response->setContentType('image/png');
         $response->setHttpHeader('Content-Disposition', 'filename='.$filename);
         return $this->renderText(textImageGenerator::generateTextImage($e->getMessage()));
       }
@@ -57,13 +57,13 @@ class generateTextImageActions extends sfActions
     } catch (Exception $e)
     {
       $response = $this->getResponse();
-      $response->setContentType('image/gif');
+      $response->setContentType('image/png');
       // $response->setContent();
       return $this->renderText(textImageGenerator::generateTextImage($e->getMessage()));
     }
     
     $response = $this->getResponse();
-    $response->setContentType('image/gif');
+    $response->setContentType('image/png');
     $response->setHttpHeader('Content-Disposition', 'filename='.$filename);
     
     return $this->renderText($image);
